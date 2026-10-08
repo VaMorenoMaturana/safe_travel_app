@@ -16,16 +16,12 @@ Con Node.js 18+:
 node scripts/update-guatemala-zones.mjs
 ```
 
-Esto descarga los polígonos del servicio municipal de ArcGIS (solo como respaldo de datos de zonas) y los guarda en:
+Esto descarga los polígonos del servicio municipal de ArcGIS y los guarda en:
 
 `data/guatemala.geojson`
 
-Después, Render servirá el archivo local y `guatemala.html` ya no dependerá de ArcGIS (solo como respaldo de datos de zonas) para dibujar las zonas.
+Después, Render servirá el archivo local y `guatemala.html` ya no dependerá de ArcGIS para dibujar las zonas.
 
 ## Nota
 
 El GeoJSON incluido inicialmente es un contenedor vacío deliberado: no se deben inventar límites geográficos. El script de actualización obtiene la geometría verificable de la fuente municipal.
-
-
-### Mapa base
-La interfaz usa OpenStreetMap como mapa base. Las zonas se cargan desde `data/guatemala.geojson` primero; ArcGIS queda únicamente como respaldo mientras se completa el archivo local.

@@ -8,150 +8,87 @@
 <link rel="preconnect" href="https://unpkg.com">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#07111f;--panel:#0d1a2b;--card:#102238;--line:#263a52;--txt:#f4f8ff;--muted:#9eb0c5;--accent:#63d5c9;--good:#25b47e;--warn:#e8b84a;--bad:#ef6b6b;--critical:#b83b57;--blue:#2d8cff}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{min-height:100vh}
-.app{max-width:1180px;margin:auto;padding:12px}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
-.brand{font-weight:900;font-size:20px;letter-spacing:-.5px}
-.sub{font-size:11px;color:var(--muted);margin-top:2px}
-.badge{border:1px solid #2c4863;background:#0d2033;color:#bfe9e5;border-radius:999px;padding:7px 10px;font-size:10px;white-space:nowrap}
-.emergency{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.emergency a{display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;border-radius:13px;color:#fff;text-decoration:none;font-weight:850;font-size:13px;border:1px solid rgba(255,255,255,.12);box-shadow:0 5px 16px rgba(0,0,0,.16)}
-.emergency .ambulance{background:#7b5b12}.emergency .fire{background:#a93b31}.emergency .police{background:#164e8c}
-.emergency small{font-size:10px;opacity:.8;font-weight:700}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 315px;gap:10px;align-items:start}
-.mapcard{min-width:0}
-.mapwrap{position:relative}
-#map{height:clamp(520px,72vh,720px);border-radius:17px;overflow:hidden;border:1px solid var(--line);box-shadow:0 8px 28px rgba(0,0,0,.22)}
-.mapkey{position:absolute;z-index:500;left:10px;right:10px;bottom:10px;background:rgba(7,17,31,.92);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:7px 9px;font-size:10px;line-height:1.5;backdrop-filter:blur(7px)}
-.legendbar{display:flex;align-items:center;gap:5px}
-.legendbar .item{display:flex;align-items:center;gap:4px;white-space:nowrap}
-.sw{display:inline-block;width:9px;height:9px;border-radius:2px}
-.panel,.card{background:var(--panel);border:1px solid var(--line);border-radius:17px}
-.panel{padding:12px}
-.card{padding:12px}
-.controls{display:grid;gap:8px}
-.label{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
-input,select,button{font:inherit}
-input,select{width:100%;background:#0a1625;color:var(--txt);border:1px solid #2a4059;border-radius:11px;padding:11px;font-size:15px;outline:none}
-input:focus,select:focus{border-color:var(--accent)}
-button{border:0;border-radius:11px;padding:10px 11px;cursor:pointer;font-weight:800;min-height:42px}
-.primary{background:var(--accent);color:#06201e}
-.secondary{background:#172b42;color:var(--txt);border:1px solid #2a4059}
-.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.status{font-size:11px;color:var(--muted);line-height:1.4}
-.notice{border-radius:12px;padding:9px;font-size:11px;line-height:1.4;background:#111f31;border:1px solid #293e55}
-.notice strong{display:block;color:var(--txt);margin-bottom:2px}
-.result{margin-top:10px}
-.score{display:flex;align-items:center;gap:10px}
-.scoreNum{font-size:34px;font-weight:900;line-height:1}
-.level{font-weight:900}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
-.kpi{background:#0a1625;border:1px solid #22364c;border-radius:10px;padding:8px}
-.kpi b{font-size:15px}
-.kpi span{display:block;color:var(--muted);font-size:9px;margin-top:2px}
-.risks{margin:8px 0 0;padding-left:17px;font-size:12px;line-height:1.5}
-.source{font-size:9px;color:var(--muted);margin-top:8px}
-.foot{margin-top:7px;color:var(--muted);font-size:9px;line-height:1.45}
-.info-section{margin-top:10px}
-.info-section details{background:#0d1a2b;border:1px solid var(--line);border-radius:13px;padding:9px 11px;color:var(--muted);font-size:10px;line-height:1.55}
-.info-section summary{color:var(--txt);font-weight:800;cursor:pointer}
-.hidden{display:none}
-.leaflet-control-attribution{font-size:8px}
+:root{--bg:#07111f;--panel:#0d1a2b;--card:#112238;--line:#263a52;--txt:#eef5ff;--muted:#9eb0c5;--accent:#63d5c9;--good:#25b47e;--warn:#e8b84a;--bad:#ef6b6b;--critical:#b83b57}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh}.app{max-width:1100px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}.brand{font-weight:800;font-size:20px;letter-spacing:-.4px}.sub{font-size:12px;color:var(--muted);margin-top:2px}.badge{border:1px solid #2c4863;background:#0d2033;color:#bfe9e5;border-radius:999px;padding:7px 10px;font-size:11px}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:12px}.panel,.card{background:var(--panel);border:1px solid var(--line);border-radius:18px}.panel{padding:14px}.card{padding:14px}.controls{display:grid;gap:10px}.label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+input,select,button{font:inherit}input,select{width:100%;background:#0a1625;color:var(--txt);border:1px solid #2a4059;border-radius:11px;padding:12px;font-size:16px;outline:none}input:focus,select:focus{border-color:var(--accent)}
+button{border:0;border-radius:11px;padding:11px 12px;cursor:pointer;font-weight:750;min-height:44px}.primary{background:var(--accent);color:#06201e}.secondary{background:#172b42;color:var(--txt);border:1px solid #2a4059}.row{display:flex;gap:8px}.row>*{flex:1}.status{font-size:12px;color:var(--muted);line-height:1.45}.notice{border-radius:12px;padding:10px;font-size:12px;line-height:1.45;background:#111f31;border:1px solid #293e55}.notice strong{display:block;color:var(--txt);margin-bottom:3px}
+#map{height:620px;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
 .safe-pin{background:transparent!important;border:0!important}
-.safe-pin span{display:flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;background:#0b1a2a;color:#fff;border:2px solid #fff;font-size:14px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.safe-pin span{display:flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:50%;background:#0b1a2a;color:#fff;border:2px solid #fff;font-size:15px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+
 .zone-label{background:transparent!important;border:0!important}
-.zone-label span{display:inline-block;background:rgba(7,17,31,.88);color:#fff;border:1px solid rgba(255,255,255,.65);border-radius:999px;padding:3px 7px;font-size:10px;font-weight:850;white-space:nowrap;box-shadow:0 2px 7px rgba(0,0,0,.5)}
-@media(max-width:850px){
- .app{padding:8px}.top{align-items:flex-start}.brand{font-size:18px}.layout{grid-template-columns:1fr}.panel{order:2}.mapcard{order:1}
- #map{height:62vh;min-height:430px}.emergency a{min-height:46px;font-size:12px}.emergency small{display:none}
-}
-@media(max-width:430px){
- .badge{font-size:9px;padding:6px 8px}.emergency{gap:5px}.emergency a{padding:7px 4px;font-size:11px}.kpis{gap:4px}.kpi{padding:7px}.kpi b{font-size:13px}.mapkey{font-size:9px;overflow:hidden}
-}
+.zone-label span{display:inline-block;background:rgba(7,17,31,.9);color:#fff;border:1px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 8px;font-size:11px;font-weight:850;white-space:nowrap;box-shadow:0 2px 7px rgba(0,0,0,.5)}
+.mapwrap{position:relative}.mapkey{position:absolute;z-index:500;right:10px;bottom:10px;background:rgba(7,17,31,.92);border:1px solid var(--line);border-radius:12px;padding:9px;font-size:11px;line-height:1.8}.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.result{margin-top:12px}.score{display:flex;align-items:center;gap:12px}.scoreNum{font-size:36px;font-weight:850;line-height:1}.level{font-weight:800}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.kpi{background:#0a1625;border:1px solid #22364c;border-radius:12px;padding:10px}.kpi b{font-size:17px}.kpi span{display:block;color:var(--muted);font-size:10px;margin-top:2px}.risks{margin:10px 0 0;padding-left:18px;font-size:13px;line-height:1.6}.source{font-size:10px;color:var(--muted);margin-top:9px}.source a{color:#9bded8}.foot{margin-top:12px;color:var(--muted);font-size:10px;line-height:1.5}.hidden{display:none}.leaflet-control-attribution{font-size:9px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}#map{height:58vh;min-height:430px}.top{align-items:flex-start}.kpis{grid-template-columns:1fr 1fr 1fr}.panel{order:2}.mapcard{order:1}}
+@media(max-width:430px){.app{padding:9px}.brand{font-size:18px}.badge{font-size:10px}.kpis{gap:5px}.kpi{padding:8px}.kpi b{font-size:14px}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div><div class="brand">GUATEMALA · SAFEROUTE</div><div class="sub">Seguridad para viajeros · Ciudad de Guatemala</div></div>
-    <div class="badge" id="online">● Cargando zonas locales</div>
+    <div><div class="brand">GUATEMALA · SAFEROUTE</div><div class="sub">Mapa de riesgo orientativo para viajeros · Guatemala City</div></div>
+    <div class="badge" id="online">● Internet: comprobando</div>
   </header>
 
-  <section class="emergency" aria-label="Emergencias">
-    <a class="ambulance" href="tel:123" aria-label="Llamar ambulancia al 123">🚑 <span>Ambulancia <small>123</small></span></a>
-    <a class="fire" href="tel:122" aria-label="Llamar bomberos al 122">🚒 <span>Bomberos <small>122</small></span></a>
-    <a class="police" href="tel:110" aria-label="Llamar Policía Nacional Civil al 110">🚨 <span>Policía <small>110</small></span></a>
-  </section>
+  <div class="grid">
+    <aside class="panel">
+      <div class="controls">
+        <div class="label">Tu ubicación</div>
+        <button class="primary" id="locate">◎ Activar seguimiento GPS</button>
+        <div class="status" id="locStatus">La ubicación se usa solo en esta página; el navegador pedirá permiso.</div>
 
-  <div class="layout">
-    <main class="mapcard">
-      <div class="mapwrap">
-        <div id="map" aria-label="Mapa de seguridad de Ciudad de Guatemala"></div>
-        <div class="mapkey" aria-label="Escala de riesgo">
-          <div class="legendbar">
-            <span class="item"><i class="sw" style="background:#25b47e"></i> Menor</span>
-            <span>→</span>
-            <span class="item"><i class="sw" style="background:#e8b84a"></i> Precaución</span>
-            <span>→</span>
-            <span class="item"><i class="sw" style="background:#ef6b6b"></i> Alto</span>
-            <span>→</span>
-            <span class="item"><i class="sw" style="background:#b83b57"></i> Evitar</span>
-          </div>
+        <div class="label">Buscar destino</div>
+        <input id="search" placeholder="Ej. Zona 14, Oakland Mall, Antigua..." autocomplete="off">
+        <button class="secondary" id="searchBtn">Buscar y evaluar</button>
+        <div id="searchResults"></div>
+
+        <div class="label">Vista del mapa</div>
+        <select id="layer">
+          <option value="risk" selected>Riesgo por zona</option>
+          <option value="zones">Solo límites de zonas</option>
+          <option value="security">Puntos de seguridad</option>
+          <option value="tourism">Lugares turísticos</option>
+          <option value="all">Riesgo + seguridad + turismo</option>
+        </select>
+
+        <div class="notice">
+          <strong>Cómo leerlo</strong>
+          Cada zona queda delimitada por un contorno visible. Verde = riesgo relativamente menor. Amarillo = precaución. Rojo = riesgo alto. Vino = evitar según advertencias oficiales. En las capas adicionales, ★ embajadas/turismo, ✚ hospitales, ● policía y ◆ hotel.
         </div>
-      </div>
 
+        <div class="notice" id="currentBox">
+          <strong>Situación actual</strong>
+          <span>Usa tu posición o busca un destino para obtener una evaluación.</span>
+        </div>
+
+        <div class="notice">
+          <strong>Base de seguridad</strong>
+          El modelo combina clasificación oficial por zona, contexto urbano y reglas prudenciales. No equivale a una predicción policial ni garantiza seguridad.
+        </div>
+
+        <button class="secondary" id="hotel">▣ Ver mi hotel: Westin Camino Real</button>
+        <button class="secondary" id="refresh">↻ Actualizar datos online</button>
+        <div class="foot">Fuentes principales: Departamento de Estado de EE. UU., Ministerio de Exteriores de España, Municipalidad de Guatemala/ArcGIS, PNC, Ministerio de Relaciones Exteriores de Chile y España, INGUAT y OpenStreetMap. El hotel está en Zona 10 (Zona Viva).<br><br>Emergencias: Policía 110 · ASISTUR 1500 / WhatsApp +502 5188-1819.</div>
+      </div>
+    </aside>
+
+    <main class="mapcard">
+      <div id="map" aria-label="Mapa de seguridad de Ciudad de Guatemala"></div>
       <section class="card result" id="result">
-        <div class="score"><div class="scoreNum" id="score">—</div><div><div class="level" id="level">Esperando ubicación</div><div class="status" id="where">Activa GPS o busca un destino.</div></div></div>
+        <div class="score"><div class="scoreNum" id="score">—</div><div><div class="level" id="level">Esperando ubicación</div><div class="status" id="where">Selecciona una ubicación o destino.</div></div></div>
         <div class="kpis">
           <div class="kpi"><b id="zone">—</b><span>ZONA</span></div>
-          <div class="kpi"><b id="timeRisk">—</b><span>HORARIO</span></div>
+          <div class="kpi"><b id="timeRisk">—</b><span>FACTOR HORARIO</span></div>
           <div class="kpi"><b id="confidence">—</b><span>CONFIANZA</span></div>
         </div>
         <ul class="risks" id="risks"><li>Sin evaluación todavía.</li></ul>
         <div class="source" id="source">La evaluación aparecerá aquí.</div>
       </section>
     </main>
-
-    <aside class="panel">
-      <div class="controls">
-        <div class="label">Acción rápida</div>
-        <button class="primary" id="locate">◎ Activar seguimiento GPS</button>
-        <div class="status" id="locStatus">El GPS actualiza tu punto y la evaluación automáticamente.</div>
-
-        <div class="label">Buscar destino</div>
-        <input id="search" placeholder="Zona 14, Oakland Mall, etc." autocomplete="off">
-        <button class="secondary" id="searchBtn">Buscar destino</button>
-        <div id="searchResults"></div>
-
-        <div class="label">Capas</div>
-        <select id="layer">
-          <option value="risk" selected>Riesgo por zona</option>
-          <option value="zones">Solo límites</option>
-          <option value="security">Seguridad</option>
-          <option value="tourism">Turismo</option>
-          <option value="all">Todo</option>
-        </select>
-
-        <div class="quick-actions">
-          <button class="secondary" id="hotel">▣ Ver hotel</button>
-          <button class="secondary" id="refresh">↻ Recargar zonas</button>
-        </div>
-      </div>
-    </aside>
   </div>
-
-  <section class="info-section">
-    <details>
-      <summary>Información, criterios y fuentes</summary>
-      <p>Verde = riesgo relativamente menor. Amarillo = precaución. Rojo = riesgo alto. Vino = evitar según advertencias oficiales. Las capas adicionales muestran embajadas, hospitales, policía, hotel y lugares turísticos.</p>
-      <p>El modelo combina clasificación oficial por zona, contexto urbano y una regla prudencial por horario. No equivale a una predicción policial ni garantiza seguridad.</p>
-      <p>Fuentes principales: Departamento de Estado de EE. UU., Ministerio de Exteriores de España, Municipalidad de Guatemala/ArcGIS, PNC, Ministerio de Relaciones Exteriores de Chile y España, INGUAT y OpenStreetMap.</p>
-      <p><strong>Emergencias:</strong> Policía 110 · Bomberos Voluntarios 122 · Bomberos Municipales 123 · Cruz Roja 125. Números verificados con fuentes oficiales de Guatemala.</p>
-    </details>
-  </section>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -160,9 +97,9 @@ button{border:0;border-radius:11px;padding:10px 11px;cursor:pointer;font-weight:
 (()=> {
 "use strict";
 const map=L.map("map",{zoomControl:true}).setView([14.6349,-90.5069],12);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",{
   maxZoom:19,
-  attribution:'© OpenStreetMap contributors'
+  attribution:'© Esri, HERE, Garmin, (c) OpenStreetMap contributors, and the GIS user community'
 }).addTo(map);
 const $=id=>document.getElementById(id);
 map.on("tileerror",()=>{$("online").textContent="● Mapa: revisando conexión";$("online").style.color="#e8b84a";});
@@ -351,7 +288,7 @@ function evalPoint(lat,lng,zone,label,source){
  $("currentBox").innerHTML="<strong>Evaluación</strong>"+(zone?(" Zona "+zone+" · "+score+"/100 · "+level+"."): " No fue posible identificar la zona municipal.");
 }
 function zoneFromPoint(lat,lng){
- if(!zoneFeatures.length)return null;
+ if(!zonesLayer)return null;
  for(const f of zoneFeatures){
    const ring=f.geometry.coordinates;
    if(pointInGeometry(lng,lat,ring))return Number(f.properties.ZONA);
@@ -427,7 +364,7 @@ async function loadZones(){
   applyHatches();
   addZoneLabels();
   map.fitBounds(zonesLayer.getBounds().pad(.04));
-  $("online").textContent=loaded.source==="local"?"● Zonas locales":"● Zonas online";
+  $("online").textContent=loaded.source==="local"?"● Zonas: locales":"● Zonas: online";
   $("online").style.color="#9be5d2";
  }catch(e){
   $("online").textContent="● Zonas: no disponibles";
@@ -441,7 +378,6 @@ function marker(lat,lng,title,kind){
 }
 let geoWatchId=null;
 let lastGeoUpdate=0;
-let gpsCentered=false;
 function updateLivePosition(pos){
  const {latitude:lat,longitude:lng,accuracy}=pos.coords;
  const z=zoneFromPoint(lat,lng);
@@ -459,18 +395,12 @@ function updateLivePosition(pos){
    })
  ]).addTo(map);
 
- if(!gpsCentered){
-   map.setView([lat,lng],16,{animate:true});
-   gpsCentered=true;
- }else{
-   map.panTo([lat,lng],{animate:true,duration:.35});
- }
  evalPoint(
    lat,lng,z,
    z?("Tu posición · Zona "+z):"Tu posición",
    "Posición GPS en movimiento + zona municipal + clasificación de riesgo."
  );
- $("locStatus").textContent="● GPS activo · precisión aprox. "+Math.round(accuracy||0)+" m";
+ $("locStatus").textContent="Seguimiento activo · precisión aprox. "+Math.round(accuracy||0)+" m";
  lastGeoUpdate=Date.now();
 }
 function locate(){
@@ -481,7 +411,6 @@ function locate(){
  if(geoWatchId!==null){
    navigator.geolocation.clearWatch(geoWatchId);
    geoWatchId=null;
-   gpsCentered=false;
    $("locStatus").textContent="Seguimiento detenido.";
    return;
  }
