@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Viña del Mar · SafeRoute</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#07111f;--panel:#0d1a2b;--card:#102238;--line:#263a52;--txt:#f4f8ff;--muted:#9eb0c5;--accent:#63d5c9;--good:#25b47e;--warn:#e8b84a;--bad:#ef6b6b;--blue:#2d8cff}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100vh}
+.app{max-width:1180px;margin:auto;padding:12px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}.brand{font-weight:900;font-size:20px;letter-spacing:-.5px}.sub{font-size:11px;color:var(--muted);margin-top:2px}.badge{border:1px solid #2c4863;background:#0d2033;color:#bfe9e5;border-radius:999px;padding:7px 10px;font-size:10px;white-space:nowrap}
+.emergency{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.emergency a{display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;border-radius:13px;color:#fff;text-decoration:none;font-weight:850;font-size:13px;border:1px solid rgba(255,255,255,.12);box-shadow:0 5px 16px rgba(0,0,0,.16)}.ambulance{background:#7b5b12}.fire{background:#a93b31}.police{background:#164e8c}.emergency small{font-size:10px;opacity:.8;font-weight:700}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 315px;gap:10px;align-items:start}.mapwrap{position:relative}#map{height:clamp(520px,72vh,720px);border-radius:17px;overflow:hidden;border:1px solid var(--line);box-shadow:0 8px 28px rgba(0,0,0,.22)}
+.mapkey{position:absolute;z-index:500;left:10px;right:10px;bottom:10px;background:rgba(7,17,31,.92);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:7px 9px;font-size:10px;backdrop-filter:blur(7px)}.legendbar{display:flex;align-items:center;gap:7px;justify-content:center}.item{display:flex;align-items:center;gap:4px;white-space:nowrap}.sw{display:inline-block;width:9px;height:9px;border-radius:2px}
+.panel,.card{background:var(--panel);border:1px solid var(--line);border-radius:17px}.panel{padding:12px}.card{padding:12px}.controls{display:grid;gap:8px}.label{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+input,select,button{font:inherit}input,select{width:100%;background:#0a1625;color:var(--txt);border:1px solid #2a4059;border-radius:11px;padding:11px;font-size:15px;outline:none}input:focus,select:focus{border-color:var(--accent)}button{border:0;border-radius:11px;padding:10px 11px;cursor:pointer;font-weight:800;min-height:42px}.primary{background:var(--accent);color:#06201e}.secondary{background:#172b42;color:var(--txt);border:1px solid #29425d}.status{font-size:11px;color:var(--muted);line-height:1.4}.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.result{margin-top:10px}.score{display:flex;align-items:center;gap:10px}.scoreNum{font-size:36px;font-weight:950;line-height:1}.level{font-weight:900;font-size:16px}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.kpi{background:#0a1625;border:1px solid #20364e;border-radius:11px;padding:8px;text-align:center}.kpi b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi span{display:block;font-size:9px;color:var(--muted);margin-top:3px}.risks{margin:10px 0 0;padding-left:18px;font-size:12px;color:#dbe7f5;line-height:1.45}.source{font-size:10px;color:var(--muted);margin-top:9px;line-height:1.4}
+.info-section{margin-top:10px}.info-section details{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:10px 12px;color:#cbd8e7;font-size:11px;line-height:1.5}.info-section summary{cursor:pointer;font-weight:800;color:var(--txt)}
+.safe-pin span{display:flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;background:#0b1a2a;color:#fff;border:2px solid #fff;font-size:14px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.45)}.zone-label{font-size:9px;color:#fff;font-weight:800;text-shadow:0 1px 3px #000}.zone-label span{background:rgba(239,107,107,.88);padding:3px 5px;border-radius:5px}
+.search-results{display:grid;gap:5px}.search-results button{text-align:left;font-size:11px}.leaflet-popup-content{font-size:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.panel{order:-1}.quick-actions{grid-template-columns:1fr 1fr}#map{height:62vh;min-height:430px}.brand{font-size:17px}.sub{font-size:10px}}
+@media(max-width:520px){.app{padding:8px}.emergency a{min-height:54px;font-size:12px}.emergency small{display:block}.mapkey{left:6px;right:6px}.legendbar{font-size:9px}.kpis{gap:5px}.kpi{padding:7px 4px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div><div class="brand">VIÑA DEL MAR · SAFEROUTE</div><div class="sub">Seguridad para viajeros · Viña del Mar, Chile</div></div><div class="badge" id="online">● Cargando riesgo</div></header>
+
+<section class="emergency" aria-label="Emergencias">
+<a class="ambulance" href="tel:131">🚑 <span>Ambulancia <small>131</small></span></a>
+<a class="fire" href="tel:132">🚒 <span>Bomberos <small>132</small></span></a>
+<a class="police" href="tel:133">🚨 <span>Carabineros <small>133</small></span></a>
+</section>
+
+<div class="layout">
+<main>
+<div class="mapwrap">
+<div id="map" aria-label="Mapa de seguridad y riesgo territorial de Viña del Mar"></div>
+<div class="mapkey"><div class="legendbar"><span class="item"><i class="sw" style="background:#25b47e"></i> Sin área de riesgo</span><span>·</span><span class="item"><i class="sw" style="background:#ef6b6b"></i> Área de riesgo oficial</span></div></div>
+</div>
+
+<section class="card result" id="result">
+<div class="score"><div class="scoreNum" id="score">—</div><div><div class="level" id="level">Esperando ubicación</div><div class="status" id="where">Activa GPS o busca un destino.</div></div></div>
+<div class="kpis"><div class="kpi"><b id="zone">—</b><span>ÁREA</span></div><div class="kpi"><b id="timeRisk">—</b><span>HORARIO</span></div><div class="kpi"><b id="confidence">—</b><span>CONFIANZA</span></div></div>
+<ul class="risks" id="risks"><li>Sin evaluación todavía.</li></ul>
+<div class="source" id="source">La evaluación aparecerá aquí.</div>
+</section>
+</main>
+
+<aside class="panel">
+<div class="controls">
+<div class="label">Acción rápida</div>
+<button class="primary" id="locate">◎ Activar seguimiento GPS</button>
+<div class="status" id="locStatus">El GPS actualiza tu punto y la evaluación automáticamente.</div>
+<div class="label">Buscar destino</div>
+<input id="search" placeholder="Reloj de Flores, Reñaca, Quinta Vergara…" autocomplete="off">
+<button class="secondary" id="searchBtn">Buscar destino</button>
+<div id="searchResults" class="search-results"></div>
+<div class="label">Capas</div>
+<select id="layer"><option value="risk" selected>Riesgo territorial</option><option value="zones">Solo límites de riesgo</option><option value="security">Seguridad</option><option value="tourism">Turismo</option><option value="all">Todo</option></select>
+<div class="quick-actions"><button class="secondary" id="center">⌖ Ver centro</button><button class="secondary" id="refresh">↻ Actualizar riesgo</button></div>
+</div>
+</aside>
+</div>
+
+<section class="info-section"><details>
+<summary>Información, criterios y fuentes</summary>
+<p>La capa roja corresponde a áreas de riesgo territorial del Plan Regulador Comunal de Viña del Mar publicado por MINVU/GeoIDE. No es un mapa de delitos ni indica una emergencia activa.</p>
+<p>El puntaje es orientativo: 32 dentro de un polígono oficial de riesgo y 78 fuera de esos polígonos, con ajuste prudencial por horario. No reemplaza instrucciones de autoridades.</p>
+<p>Emergencias: SAMU 131 · Bomberos 132 · Carabineros 133. Seguridad Ciudadana municipal: +56 32 218 4753.</p>
+<p>Turismo: Municipalidad de Viña del Mar / Visita Viña. Mapa base: OpenStreetMap.</p>
+</details></section>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/travel-safety-data.js"></script>
+<script>
+(()=>{"use strict";
+const $=id=>document.getElementById(id);
+const map=L.map("map",{zoomControl:true}).setView([-33.0245,-71.5518],13);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(map);
+
+let riskLayer=null,securityLayer=null,tourismLayer=null,userLayer=null,destMarker=null,zoneFeatures=[],watchId=null,firstGps=true;
+
+function riskFor(zone){
+ if(zone)return{score:32,level:"RIESGO TERRITORIAL",color:"#ef6b6b",risks:["El punto cae dentro de un área de riesgo del instrumento territorial oficial.","Esto describe riesgo territorial; no significa delito ni emergencia activa."]};
+ return{score:78,level:"SIN ÁREA DE RIESGO",color:"#25b47e",risks:["No se identificó un polígono de riesgo en la capa oficial consultada.","Mantén precauciones normales y revisa las condiciones del entorno."]};
+}
+function timeAdjustment(){const h=new Date().getHours();if(h>=22||h<6)return{delta:-15,label:"ALTO"};if(h>=18)return{delta:-8,label:"ELEVADO"};return{delta:0,label:"NORMAL"}}
+function pointInPolygon(x,y,p){let inside=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const xi=p[i][0],yi=p[i][1],xj=p[j][0],yj=p[j][1];const hit=((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yj)/(yj-yi)+xj);if(hit)inside=!inside}return inside}
+function pointInGeometry(pt,g){if(!g)return false;if(g.type==="Polygon")return g.coordinates.some(r=>pointInPolygon(pt[0],pt[1],r));if(g.type==="MultiPolygon")return g.coordinates.some(p=>p.some(r=>pointInPolygon(pt[0],pt[1],r)));return false}
+function zoneAt(lat,lng){for(const f of zoneFeatures)if(pointInGeometry([lng,lat],f.geometry))return f;return null}
+
+function evaluate(lat,lng,zone,label,source){
+ const r=riskFor(zone),t=timeAdjustment(),score=Math.max(0,Math.min(100,r.score+t.delta));
+ $("score").textContent=score;$("level").textContent=t.label==="NORMAL"?r.level:t.label;$("where").textContent=label||"Ubicación actual";
+ $("zone").textContent=zone?(zone.properties?.NOM||zone.properties?.ZONA||"Área de riesgo"):"Sin polígono";$("timeRisk").textContent=t.label;$("confidence").textContent=zone?"Alta":"Orientativa";
+ $("risks").innerHTML=r.risks.map(x=>"<li>"+x+"</li>").join("");$("source").textContent=source||"GPS + cartografía oficial de riesgo territorial.";$("result").style.borderColor=r.color;
+}
+function markerIcon(type){const s={hospital:"✚",police:"●",tourist:"★"}[type]||"•";return L.divIcon({className:"safe-pin",html:"<span>"+s+"</span>",iconSize:[30,30],iconAnchor:[15,15]})}
+
+const securityPoints=[
+["Hospital Dr. Gustavo Fricke","hospital","Hospital Gustavo Fricke, Viña del Mar, Chile","Hospital público de referencia · emergencias"],
+["Hospital Clínico Viña del Mar","hospital","Hospital Clínico Viña del Mar, Chile","Centro asistencial · emergencias"],
+["Hospital Dr. Eduardo Pereira","hospital","Hospital Eduardo Pereira, Valparaíso, Chile","Hospital de referencia regional"],
+["1ª Comisaría de Viña del Mar","police","1 Comisaría Viña del Mar, Chile","Carabineros · 133"],
+["Seguridad Ciudadana Viña del Mar","police","Arlegui 715, Viña del Mar, Chile","Seguridad Ciudadana · +56 32 218 4753"]
+];
+const tourism=[
+["Reloj de Flores",-33.0246,-71.5571,"Ícono turístico del borde costero"],
+["Castillo Wulff",-33.0199,-71.5590,"Patrimonio · Avenida Marina"],
+["Playa Acapulco",-33.0195,-71.5500,"Borde costero"],
+["Muelle Vergara",-33.0166,-71.5528,"Paseo turístico"],
+["Quinta Vergara",-33.0240,-71.5389,"Parque y recinto cultural"],
+["Teatro Municipal de Viña del Mar",-33.0259,-71.5507,"Centro histórico y cultural"],
+["Palacio Vergara",-33.0252,-71.5390,"Patrimonio"],
+["Palacio Rioja",-33.0227,-71.5520,"Museo y patrimonio"],
+["Cerro Castillo",-33.0209,-71.5613,"Sector patrimonial"],
+["Avenida Perú",-33.0149,-71.5485,"Paseo costero"],
+["Reñaca",-32.9658,-71.5428,"Sector costero y turístico"],
+["Jardín Botánico Nacional",-33.0302,-71.4908,"Área natural y recreativa"]
+];
+
+async function geocode(q){const u="https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=cl&q="+encodeURIComponent(q);const r=await fetch(u,{headers:{"Accept-Language":"es"}});if(!r.ok)throw Error();return r.json()}
+async function loadRisk(){
+ try{
+  const remote="https://geoide.minvu.cl/server/rest/services/IPT/PRC_Valpara%C3%ADso/MapServer/63/query?where=1%3D1&outFields=OBJECTID%2CZONA%2CNOM%2CLOC%2COBS&returnGeometry=true&outSR=4326&f=geojson";
+  const loaded=await TravelSafetyData.loadGeoJSON("data/vina_del_mar_risk.geojson",remote);zoneFeatures=loaded.data.features||[];
+  if(!zoneFeatures.length)throw Error("sin polígonos");
+  if(riskLayer)map.removeLayer(riskLayer);
+  riskLayer=L.geoJSON(loaded.data,{style:{color:"#ef6b6b",weight:3,fillColor:"#ef6b6b",fillOpacity:.26},onEachFeature:(f,l)=>l.bindPopup("<b>Área de riesgo territorial</b><br>"+(f.properties?.NOM||"Sin nombre")+"<br><small>Fuente: MINVU / PRC Viña del Mar</small>")}).addTo(map);
+  $("online").textContent=loaded.source==="local"?"● Riesgo local":"● Riesgo oficial online";applyLayer();
+ }catch(e){$("online").textContent="● Riesgo sin datos";$("online").style.color="#e8b84a"}
+}
+async function renderSecurity(){
+ if(securityLayer)map.removeLayer(securityLayer);securityLayer=L.layerGroup();
+ for(const p of securityPoints)try{const a=await geocode(p[2]);if(a[0])L.marker([+a[0].lat,+a[0].lon],{icon:markerIcon(p[1])}).bindPopup("<b>"+p[0]+"</b><br>"+p[3]).addTo(securityLayer)}catch(e){}
+ securityLayer.addTo(map)
+}
+function renderTourism(){if(tourismLayer)map.removeLayer(tourismLayer);tourismLayer=L.layerGroup();tourism.forEach(p=>L.marker([p[1],p[2]],{icon:markerIcon("tourist")}).bindPopup("<b>"+p[0]+"</b><br>"+p[3]).addTo(tourismLayer));tourismLayer.addTo(map)}
+function applyLayer(){const v=$("layer").value;if(riskLayer)riskLayer.setStyle({fillOpacity:v==="zones"?.06:.26});if(v==="security"||v==="all")renderSecurity();else if(securityLayer){map.removeLayer(securityLayer);securityLayer=null}if(v==="tourism"||v==="all")renderTourism();else if(tourismLayer){map.removeLayer(tourismLayer);tourismLayer=null}}
+
+function updateGPS(pos){
+ const lat=pos.coords.latitude,lng=pos.coords.longitude,acc=Math.round(pos.coords.accuracy||0),z=zoneAt(lat,lng);
+ if(userLayer)map.removeLayer(userLayer);userLayer=L.layerGroup();
+ L.circleMarker([lat,lng],{radius:8,color:"#fff",weight:3,fillColor:"#2d8cff",fillOpacity:1}).addTo(userLayer);
+ L.circle([lat,lng],{radius:acc,color:"#2d8cff",weight:1,fillOpacity:.08}).addTo(userLayer);userLayer.addTo(map);
+ if(firstGps){map.setView([lat,lng],16);firstGps=false}else map.panTo([lat,lng],{animate:true,duration:.4});
+ $("locStatus").textContent="Seguimiento activo · precisión aprox. "+acc+" m";
+ evaluate(lat,lng,z,"Tu ubicación actual","GPS en tiempo real + cartografía oficial de riesgo territorial.")
+}
+function locate(){
+ if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;firstGps=true;$("locate").textContent="◎ Activar seguimiento GPS";$("locStatus").textContent="Seguimiento detenido.";return}
+ if(!navigator.geolocation){$("locStatus").textContent="Este dispositivo no ofrece geolocalización.";return}
+ $("locate").textContent="■ Detener seguimiento GPS";$("locStatus").textContent="Solicitando ubicación…";
+ watchId=navigator.geolocation.watchPosition(updateGPS,err=>{$("locStatus").textContent="No se pudo obtener el GPS: "+err.message},{enableHighAccuracy:true,maximumAge:5000,timeout:15000})
+}
+async function search(){
+ const q=$("search").value.trim();if(!q){$("searchResults").textContent="Escribe un lugar.";return}
+ $("searchResults").textContent="Buscando…";
+ try{const arr=await geocode(q);if(!arr.length){$("searchResults").textContent="No encontré ese lugar.";return}
+ $("searchResults").innerHTML=arr.slice(0,3).map((x,i)=>'<button class="secondary" data-i="'+i+'">'+x.display_name+"</button>").join("");
+ document.querySelectorAll("#searchResults button").forEach(b=>b.onclick=()=>{const x=arr[+b.dataset.i],lat=+x.lat,lng=+x.lon,z=zoneAt(lat,lng);if(destMarker)map.removeLayer(destMarker);destMarker=L.marker([lat,lng]).addTo(map).bindPopup("<b>Destino</b><br>"+x.display_name).openPopup();map.setView([lat,lng],16);evaluate(lat,lng,z,x.display_name,"Destino consultado mediante OpenStreetMap + capa oficial de riesgo.");$("searchResults").innerHTML=""})
+ }catch(e){$("searchResults").textContent="No se pudo consultar el buscador. Comprueba tu conexión."}
+}
+$("locate").onclick=locate;$("searchBtn").onclick=search;$("search").onkeydown=e=>{if(e.key==="Enter")search()};$("layer").onchange=applyLayer;$("refresh").onclick=loadRisk;
+$("center").onclick=()=>{map.setView([-33.0245,-71.5518],14);evaluate(-33.0245,-71.5518,zoneAt(-33.0245,-71.5518),"Centro de Viña del Mar","Punto de referencia central.");};
+loadRisk();
+})();
+</script>
+</body>
+</html>
