@@ -37,7 +37,7 @@ button{border:0;border-radius:11px;padding:11px 12px;cursor:pointer;font-weight:
     <aside class="panel">
       <div class="controls">
         <div class="label">Tu ubicación</div>
-        <button class="primary" id="locate">◎ Usar mi posición</button>
+        <button class="primary" id="locate">◎ Activar seguimiento GPS</button>
         <div class="status" id="locStatus">La ubicación se usa solo en esta página; el navegador pedirá permiso.</div>
 
         <div class="label">Buscar destino</div>
@@ -244,6 +244,32 @@ function updatePointLayers(){
  if(v==="tourism"||v==="all"){renderTourism();}else if(touristLayer){map.removeLayer(touristLayer);touristLayer=null;}
 }
 
+function riskForZone(zone){
+ const z=Number(zone);
+ const data={
+  18:{score:15,level:"EVITAR",color:"#b83b57",risks:["Riesgo elevado de asalto y delincuencia organizada.","Se recomienda evitar desplazamientos no esenciales, especialmente de noche."]},
+  3:{score:35,level:"ALTO",color:"#ef6b6b",risks:["Riesgo elevado de robos y asaltos.","Mantén especial precaución al desplazarte y evita zonas aisladas."]},
+  5:{score:35,level:"ALTO",color:"#ef6b6b",risks:["Riesgo elevado de robos y asaltos.","Mantén especial precaución al desplazarte y evita zonas aisladas."]},
+  6:{score:35,level:"ALTO",color:"#ef6b6b",risks:["Riesgo elevado de robos y asaltos.","Mantén especial precaución al desplazarte y evita zonas aisladas."]},
+  7:{score:35,level:"ALTO",color:"#ef6b6b",risks:["Riesgo elevado de robos y asaltos.","Mantén especial precaución al desplazarte y evita zonas aisladas."]},
+  8:{score:35,level:"ALTO",color:"#ef6b6b",risks:["Riesgo elevado de robos y asaltos.","Mantén especial precaución al desplazarte y evita zonas aisladas."]},
+  11:{score:35,level:"ALTO",color:"#ef6b6b",risks:["Riesgo elevado de robos y asaltos.","Mantén especial precaución al desplazarte y evita zonas aisladas."]},
+  12:{score:35,level:"ALTO",color:"#ef6b6b",risks:["Riesgo elevado de robos y asaltos.","Mantén especial precaución al desplazarte y evita zonas aisladas."]},
+  9:{score:78,level:"RELATIVAMENTE MENOR",color:"#25b47e",risks:["Riesgo urbano presente: mantén precauciones normales.","Evita exhibir objetos de valor y presta atención al entorno."]},
+  10:{score:78,level:"RELATIVAMENTE MENOR",color:"#25b47e",risks:["Riesgo urbano presente: mantén precauciones normales.","Evita exhibir objetos de valor y presta atención al entorno."]},
+  13:{score:78,level:"RELATIVAMENTE MENOR",color:"#25b47e",risks:["Riesgo urbano presente: mantén precauciones normales.","Evita exhibir objetos de valor y presta atención al entorno."]},
+  14:{score:78,level:"RELATIVAMENTE MENOR",color:"#25b47e",risks:["Riesgo urbano presente: mantén precauciones normales.","Evita exhibir objetos de valor y presta atención al entorno."]},
+  15:{score:78,level:"RELATIVAMENTE MENOR",color:"#25b47e",risks:["Riesgo urbano presente: mantén precauciones normales.","Evita exhibir objetos de valor y presta atención al entorno."]}
+ };
+ return data[z]||{score:58,level:"PRECAUCIÓN",color:"#e8b84a",risks:["Mantén precauciones y evita zonas aisladas.","El nivel de riesgo puede variar según hora y circunstancias."]};
+}
+function timeAdjustment(){
+ const h=new Date().getHours();
+ if(h>=22 || h<6)return {delta:-15,label:"ALTO"};
+ if(h>=18)return {delta:-8,label:"ELEVADO"};
+ return {delta:0,label:"NORMAL"};
+}
+
 function evalPoint(lat,lng,zone,label,source){
  const r=riskForZone(zone),t=timeAdjustment();
  let score=Math.max(0,Math.min(100,r.score+t.delta));
@@ -350,16 +376,53 @@ function marker(lat,lng,title,kind){
  const m=L.marker([lat,lng]).addTo(map).bindPopup(title);
  return m;
 }
-async function locate(){
- if(!navigator.geolocation){$("locStatus").textContent="Este navegador no permite geolocalización.";return}
- $("locStatus").textContent="Solicitando ubicación…";
- navigator.geolocation.getCurrentPosition(pos=>{
-   const {latitude:lat,longitude:lng}=pos.coords; const z=zoneFromPoint(lat,lng);
-   if(userMarker)map.removeLayer(userMarker);
-   userMarker=marker(lat,lng,"<b>Tu posición</b><br>Evaluación en tiempo real");
-   map.setView([lat,lng],14); evalPoint(lat,lng,z,"Tu posición","Posición GPS del dispositivo + zona municipal + clasificación de riesgo.");
-   $("locStatus").textContent="Posición obtenida. Vuelve a pulsar para actualizar.";
- },err=>{$("locStatus").textContent="No se pudo obtener la posición. Revisa permisos de ubicación del navegador.";});
+let geoWatchId=null;
+let lastGeoUpdate=0;
+function updateLivePosition(pos){
+ const {latitude:lat,longitude:lng,accuracy}=pos.coords;
+ const z=zoneFromPoint(lat,lng);
+ if(userMarker)map.removeLayer(userMarker);
+
+ const radius=Math.max(accuracy||18,8);
+ userMarker=L.layerGroup([
+   L.circleMarker([lat,lng],{
+     radius:8, color:"#fff", weight:3, fillColor:"#2d8cff", fillOpacity:1,
+     pane:"markerPane"
+   }),
+   L.circle([lat,lng],{
+     radius:radius, color:"#2d8cff", weight:1, opacity:.35,
+     fillColor:"#2d8cff", fillOpacity:.08, interactive:false
+   })
+ ]).addTo(map);
+
+ evalPoint(
+   lat,lng,z,
+   z?("Tu posición · Zona "+z):"Tu posición",
+   "Posición GPS en movimiento + zona municipal + clasificación de riesgo."
+ );
+ $("locStatus").textContent="Seguimiento activo · precisión aprox. "+Math.round(accuracy||0)+" m";
+ lastGeoUpdate=Date.now();
+}
+function locate(){
+ if(!navigator.geolocation){
+   $("locStatus").textContent="Este navegador no permite geolocalización.";
+   return;
+ }
+ if(geoWatchId!==null){
+   navigator.geolocation.clearWatch(geoWatchId);
+   geoWatchId=null;
+   $("locStatus").textContent="Seguimiento detenido.";
+   return;
+ }
+ $("locStatus").textContent="Activando seguimiento de posición…";
+ geoWatchId=navigator.geolocation.watchPosition(
+   updateLivePosition,
+   err=>{
+     const msg=err.code===1?"Permiso de ubicación denegado.":err.code===2?"No se pudo determinar tu posición.":"La ubicación tardó demasiado.";
+     $("locStatus").textContent=msg;
+   },
+   {enableHighAccuracy:true,maximumAge:5000,timeout:15000}
+ );
 }
 async function geocode(q){
  const u="https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=gt&q="+encodeURIComponent(q);
