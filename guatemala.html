@@ -92,6 +92,7 @@ button{border:0;border-radius:11px;padding:11px 12px;cursor:pointer;font-weight:
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/travel-safety-data.js"></script>
 <script>
 (()=> {
 "use strict";
@@ -320,9 +321,11 @@ function addZoneLabels(){
 }
 async function loadZones(){
  try{
-  const url="https://services-eu1.arcgis.com/D7W6tpPbci66mak0/ArcGIS/rest/services/Guatemala_City_L%C3%ADmites/FeatureServer/11/query?where=1%3D1&outFields=ZONA&returnGeometry=true&outSR=4326&f=geojson";
-  const res=await fetch(url,{cache:"no-store"}); if(!res.ok)throw Error();
-  const gj=await res.json(); zoneFeatures=gj.features||[];
+  const remote="https://services-eu1.arcgis.com/D7W6tpPbci66mak0/ArcGIS/rest/services/Guatemala_City_L%C3%ADmites/FeatureServer/11/query?where=1%3D1&outFields=ZONA&returnGeometry=true&outSR=4326&f=geojson";
+  const loaded=await TravelSafetyData.loadGeoJSON("data/guatemala.geojson",remote);
+  const gj=loaded.data;
+  zoneFeatures=gj.features||[];
+  if(!zoneFeatures.length)throw Error("Sin polígonos de zonas");
   if(zonesLayer)map.removeLayer(zonesLayer);
   zonesLayer=L.geoJSON(gj,{
     style:styleFeature,
@@ -335,11 +338,12 @@ async function loadZones(){
   applyHatches();
   addZoneLabels();
   map.fitBounds(zonesLayer.getBounds().pad(.04));
-  $("online").textContent="● Internet: conectado";
+  $("online").textContent=loaded.source==="local"?"● Zonas: locales":"● Zonas: online";
   $("online").style.color="#9be5d2";
  }catch(e){
-  $("online").textContent="● Internet: limitado";
-  $("online").style.color="#e8b84a";
+  $("online").textContent="● Zonas: no disponibles";
+  $("online").style.color="#ef6b6b";
+  console.error("No se pudieron cargar las zonas:",e);
  }
 }
 function marker(lat,lng,title,kind){
