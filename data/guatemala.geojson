@@ -1,1 +1,12 @@
-
+{
+  "type": "FeatureCollection",
+  "name": "Guatemala City safety zones",
+  "metadata": {
+    "status": "pending-source-build",
+    "source": "Municipalidad de Guatemala / ArcGIS FeatureServer 11",
+    "sourceUrl": "https://services-eu1.arcgis.com/D7W6tpPbci66mak0/ArcGIS/rest/services/Guatemala_City_L%C3%ADmites/FeatureServer/11",
+    "expectedProperty": "ZONA",
+    "note": "Populate with the verified municipal polygons before removing the online fallback."
+  },
+  "features": []
+}
